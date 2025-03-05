@@ -1,31 +1,50 @@
 document.querySelector('button').addEventListener('click', function changePosition() {
     var tabla = document.getElementById('table');
-    var filas = Array.from(tabla.rows);
-    var encabezados = filas.splice(0, 1); // Eliminar encabezados
+    var filas = Array.from(tabla.rows).slice(1); // Omitir el encabezado
 
-    // Separar nombres y tareas
-    var nombres = filas.map(fila => fila.cells[0].innerText);
-    var tareas = filas.map(fila => fila.cells[1].innerText);
+    // Separar nombres, tareas y géneros
+    var datos = filas.map(fila => ({
+        nombre: fila.cells[0].innerText,
+        tarea: fila.cells[1].innerText,
+        genero: fila.dataset.genero
+    }));
 
-    // Mezclar nombres
-    var nombresMezclados = nombres.slice(); // Copy array
-    for (var i = nombres.length - 1; i > 0; i--) {
-        var j = Math.floor(Math.random() * (i + 1));
-        // Ensure that the same task is not assigned to the same person consecutively
-        if (tareas[i] !== tareas[j]) {
-            var temp = nombresMezclados[i];
-            nombresMezclados[i] = nombresMezclados[j];
-            nombresMezclados[j] = temp;
+    // Filtrar hombres y mujeres
+    var hombres = datos.filter(d => d.genero === "Masculino");
+    var mujeres = datos.filter(d => d.genero === "Femenino");
+
+    // Mezclar hombres y mujeres por separado
+    function mezclar(array) {
+        for (let i = array.length - 1; i > 0; i--) {
+            let j = Math.floor(Math.random() * (i + 1));
+            [array[i], array[j]] = [array[j], array[i]];
         }
     }
 
-    // Reconstruir filas
-    var filasMezcladas = filas.map((fila, i) => {
-        fila.cells[0].innerText = nombresMezclados[i];
-        return fila;
-    });
+    mezclar(hombres);
+    mezclar(mujeres);
 
-    filasMezcladas.unshift(encabezados[0]); // Agregar encabezados al inicio
-    tabla.innerHTML = filasMezcladas.map(fila => fila.outerHTML).join('');
+    // Reasignar los nombres mezclados con animación
+    let indiceHombres = 0, indiceMujeres = 0;
+    filas.forEach(fila => {
+        const genero = fila.dataset.genero; // Almacenamos el género una vez
+        const nombreCelda = fila.cells[0];
+        
+        if (genero === "Masculino" && indiceHombres < hombres.length) {
+            nombreCelda.style.opacity = 0; // Hacemos desaparecer el nombre
+            setTimeout(() => {
+                nombreCelda.innerText = hombres[indiceHombres++].nombre;
+                nombreCelda.style.opacity = 1; // Hacemos aparecer el nuevo nombre
+            }, 300); // Tiempo para el "fade out"
+        } else if (genero === "Femenino" && indiceMujeres < mujeres.length) {
+            nombreCelda.style.opacity = 0; // Hacemos desaparecer el nombre
+            setTimeout(() => {
+                nombreCelda.innerText = mujeres[indiceMujeres++].nombre;
+                nombreCelda.style.opacity = 1; // Hacemos aparecer el nuevo nombre
+            }, 300); // Tiempo para el "fade out"
+        }
+    });
 });
+
+
 

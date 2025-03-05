@@ -77,12 +77,15 @@ section{
     color: white; /* Texto blanco para contraste */
     box-shadow: 10px 10px 20px rgba(0, 0, 0, 0.9); /* Sombra más oscura */
 }
-
 #table th, td{
     border: solid 1px;
     border-color: rgb(51, 47, 47);
     padding: 3px;
 }
+#table td {
+    transition: all 1s ease-in-out; /* Transición suave para cambios de todos los estilos */
+}
+
 footer{
     display: flex;
     justify-content: center;
